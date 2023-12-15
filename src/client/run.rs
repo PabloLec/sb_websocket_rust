@@ -1,24 +1,17 @@
-use std::io::{Read, Write};
 use std::net::TcpStream;
+use crate::client::handshake::handle_handshake;
+use crate::connection::session::Session;
 
 pub fn run_client(port: &str) {
     let server_address = format!("127.0.0.1:{}", port);
     match TcpStream::connect(&server_address) {
         Ok(mut stream) => {
-            let handshake_request = format!(
-                "GET / HTTP/1.1\r\n\
-                 Host: {}\r\n\
-                 Upgrade: websocket\r\n\
-                 Connection: Upgrade\r\n\
-                 Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n\
-                 Sec-WebSocket-Version: 13\r\n\r\n",
-                server_address
-            );
-            stream.write_all(handshake_request.as_bytes()).unwrap();
-            stream.flush().unwrap();
-
-            let mut response = [0; 1024];
-            stream.read(&mut response).unwrap();
+            match handle_handshake(&mut stream, server_address) {
+                Ok(_) => {
+                    Session::new(stream).start();
+                }
+                Err(e) => eprintln!("Connection failed: {}", e),
+            }
         }
         Err(e) => eprintln!("Failed to connect: {}", e),
     }

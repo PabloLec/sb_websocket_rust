@@ -4,8 +4,8 @@ use crate::connection::stream::read_stream;
 use crate::websocket::{compute_key_hash, generate_key};
 
 pub fn handle_handshake(
-    mut stream: std::net::TcpStream,
-    server_address: &str,
+    mut stream: &mut std::net::TcpStream,
+    server_address: String,
 ) -> Result<(), &'static str> {
     let key = generate_key();
 
