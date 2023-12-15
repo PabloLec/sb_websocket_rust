@@ -20,7 +20,7 @@ pub fn handle_handshake(mut stream: &mut std::net::TcpStream) -> Result<(), &'st
                 Err("Invalid WebSocket Request")
             }
         }
-        Err(e) => Err("Error reading request"),
+        Err(_) => Err("Error reading stream"),
     }
 }
 

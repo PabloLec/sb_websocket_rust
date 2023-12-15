@@ -1,7 +1,9 @@
+use std::io;
+use std::io::Write;
 use std::net::{SocketAddr, TcpStream};
 
 use crate::connection::stream::read_stream;
-use crate::websocket::decode_frame;
+use crate::websocket::{decode_frame, encode_frame};
 
 pub struct Session {
     pub stream: TcpStream,
@@ -29,6 +31,13 @@ impl Session {
         let mut sent_messages_count = self.sent_messages.len();
 
         while self.is_alive {
+            let mut input = String::new();
+            let n = io::stdin().read_line(&mut input).unwrap();
+
+            if n > 0 {
+                self.stream.write_all(&encode_frame(&input)).unwrap();
+            }
+
             match read_stream(&mut self.stream) {
                 Ok(message_buffer) => {
                     println!(
@@ -44,5 +53,9 @@ impl Session {
                 Err(e) => eprintln!("Error reading message: {}", e),
             }
         }
+    }
+
+    pub fn send_message(&mut self, message: String) {
+        self.sent_messages.push(message);
     }
 }
