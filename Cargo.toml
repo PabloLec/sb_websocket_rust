@@ -7,3 +7,4 @@ edition = "2021"
 bytes = "1"
 sha1 = "0.10.6"
 base64 = { version = "0.21.5", features = [] }
+rand = { version = "0.8.5", features = [] }
