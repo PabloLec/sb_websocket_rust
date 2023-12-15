@@ -1,5 +1,4 @@
-mod run;
-mod connection;
 mod handshake;
+mod run;
 
 pub use run::run_server;

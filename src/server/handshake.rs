@@ -1,8 +1,11 @@
+use base64::{engine::general_purpose, Engine as _};
+use sha1::{Digest, Sha1};
 use std::io::Write;
-use base64::{Engine as _, engine::general_purpose};
-use sha1::{Sha1, Digest};
 
-pub fn handle_handshake(mut stream: &std::net::TcpStream, request: &str) -> Result<(), &'static str> {
+pub fn handle_handshake(
+    mut stream: &std::net::TcpStream,
+    request: &str,
+) -> Result<(), &'static str> {
     if request.starts_with("GET") && request.contains("Upgrade: websocket") {
         let key = extract_key(request);
         if key.is_empty() {
@@ -16,7 +19,9 @@ pub fn handle_handshake(mut stream: &std::net::TcpStream, request: &str) -> Resu
             accept_val
         );
         println!("Response: {}", response);
-        stream.write_all(response.as_bytes()).map_err(|_| "Failed to send handshake response")?;
+        stream
+            .write_all(response.as_bytes())
+            .map_err(|_| "Failed to send handshake response")?;
         stream.flush().map_err(|_| "Failed to flush stream")?;
 
         Ok(())
@@ -26,7 +31,8 @@ pub fn handle_handshake(mut stream: &std::net::TcpStream, request: &str) -> Resu
 }
 
 fn extract_key(request: &str) -> String {
-    request.lines()
+    request
+        .lines()
         .find(|line| line.starts_with("Sec-WebSocket-Key:"))
         .and_then(|line| line.split(": ").nth(1))
         .map(|value| value.trim().to_string())

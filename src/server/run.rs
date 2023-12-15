@@ -1,6 +1,8 @@
-use std::net::TcpListener;
+use crate::connection::session::Session;
+use crate::connection::stream::read_stream;
+use crate::server::handshake::handle_handshake;
+use std::net::{TcpListener, TcpStream};
 use std::thread;
-use crate::server::connection::handle_connection;
 
 pub fn run_server() {
     let listener = TcpListener::bind("127.0.0.1:8080").expect("Cannot bind to port");
@@ -15,5 +17,23 @@ pub fn run_server() {
             }
             Err(e) => eprintln!("Error: {}", e),
         }
+    }
+}
+
+fn handle_connection(mut stream: TcpStream) {
+    match read_stream(&mut stream) {
+        Ok(request_buffer) => {
+            let request = String::from_utf8_lossy(&request_buffer);
+            println!("Received request: {}", request);
+
+            match handle_handshake(&stream, &request) {
+                Ok(_) => {
+                    println!("WebSocket Handshake Successful");
+                    Session::new(stream).start();
+                }
+                Err(e) => eprintln!("WebSocket Handshake Failed: {}", e),
+            }
+        }
+        Err(e) => eprintln!("Error: {}", e),
     }
 }
