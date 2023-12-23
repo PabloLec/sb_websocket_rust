@@ -30,7 +30,7 @@ fn main() -> Result<()> {
     let mut terminal = prepare_terminal()?;
     terminal.clear()?;
 
-    let mut app = App::App::new(session);
+    let mut app = App::new(session);
     match run_app(&mut terminal, &mut app) {
         Ok(_) => {}
         Err(e) => {
@@ -61,7 +61,7 @@ fn teardown_terminal(mut terminal: Terminal<CrosstermBackend<io::Stdout>>) -> Re
     Ok(())
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App::App) -> Result<()> {
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     loop {
         terminal.draw(|f| render(f, app))?;
         if event::poll(std::time::Duration::from_millis(16))? {

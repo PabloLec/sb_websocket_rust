@@ -1,10 +1,10 @@
-use crate::connection::Message::Message;
+use crate::connection::message::Message;
 use std::io::Write;
 use std::net::{SocketAddr, TcpStream};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use crate::connection::stream::{read_stream, read_stream_non_blocking};
+use crate::connection::stream::read_stream_non_blocking;
 use crate::websocket::{decode_frame, encode_frame};
 
 pub struct Session {
