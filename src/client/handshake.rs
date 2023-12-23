@@ -4,22 +4,19 @@ use crate::connection::stream::read_stream;
 use crate::websocket::{compute_key_hash, generate_key};
 
 pub fn handle_handshake(
-    mut stream: &mut std::net::TcpStream,
+    stream: &mut std::net::TcpStream,
     server_address: String,
 ) -> Result<(), &'static str> {
     let key = generate_key();
 
-    send_request(&stream, &key, &server_address)?;
+    send_request(stream, &key, &server_address)?;
 
-    match read_stream(&mut stream) {
+    match read_stream(stream) {
         Ok(response_buffer) => {
             let response = String::from_utf8_lossy(&response_buffer);
-            println!("Received response: {}", response);
-
             handle_response(&response, &key)
         }
-        Err(e) => {
-            eprintln!("Error reading response: {}", e);
+        Err(_) => {
             Err("Error reading response")
         }
     }
@@ -47,7 +44,6 @@ fn send_request(
 
 fn handle_response(response: &str, key: &str) -> Result<(), &'static str> {
     if response.contains("HTTP/1.1 101") && response.contains(&compute_key_hash(key)) {
-        println!("Handshake successful!");
         Ok(())
     } else {
         eprintln!("Handshake failed");

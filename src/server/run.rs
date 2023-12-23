@@ -6,6 +6,7 @@ use crate::server::handshake::handle_handshake;
 
 pub fn run_server(port: &str) -> Result<Session, io::Error> {
     let listener = TcpListener::bind(format!("127.0.0.1:{}", port))?;
+    println!("Waiting for connection with peer");
     match listener.accept() {
         Ok((stream, _addr)) => handle_connection(stream),
         Err(e) => {
