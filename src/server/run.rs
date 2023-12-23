@@ -1,30 +1,27 @@
+use std::io;
 use std::net::{TcpListener, TcpStream};
-use std::thread;
 
 use crate::connection::session::Session;
 use crate::server::handshake::handle_handshake;
 
-pub fn run_server(port: &str) {
-    let listener = TcpListener::bind(format!("127.0.0.1:{}", port)).expect("Cannot bind to port");
-
-    for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
-                thread::spawn(|| {
-                    println!("New connection: {}", stream.peer_addr().unwrap());
-                    handle_connection(stream);
-                });
-            }
-            Err(e) => eprintln!("Error: {}", e),
+pub fn run_server(port: &str) -> Result<Session, io::Error> {
+    let listener = TcpListener::bind(format!("127.0.0.1:{}", port))?;
+    match listener.accept() {
+        Ok((stream, _addr)) => handle_connection(stream),
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            Err(e)
         }
     }
 }
 
-fn handle_connection(mut stream: TcpStream) {
+fn handle_connection(mut stream: TcpStream) -> Result<Session, io::Error> {
     match handle_handshake(&mut stream) {
         Ok(_) => {
-            Session::new(stream).start();
+            let mut session = Session::new(stream);
+            session.start();
+            Ok(session)
         }
-        Err(e) => eprintln!("Connection failed: {}", e),
+        Err(e) => Err(io::Error::new(io::ErrorKind::Other, e)),
     }
 }
