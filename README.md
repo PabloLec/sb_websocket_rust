@@ -6,7 +6,9 @@ One instance acts as a server if no existing server is found, while the other ta
 The UI is created using [Ratatui](https://github.com/ratatui-org/ratatui).
 
 ## Demo
-![Demo](docs/demo.gif)
+<p align="center">
+  <img src="docs/demo.gif" alt="Demo">
+</p>
 
 ## Instructions to Run
 - Run two separate instances of the application using:
